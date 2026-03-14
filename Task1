@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+int move(int k, double **arr, int n) {
+    int t = -1;
+    for (int i = k; i < n; i++) {
+        if (fabs(arr[i][k]) > 1e-9 && t == -1) {
+            t = i;
+        }
+    }
+    if (t == -1) {
+        return -1;
+    }
+    if (t != k) {
+        for (int j = 0; j < n; j++) {
+            double temp = arr[k][j];
+            arr[k][j] = arr[t][j];
+            arr[t][j] = temp;
+        }
+        return 1; 
+    }
+    return 0; 
+}
+int alg(int n, double **arr){
+    int f, cnt = 0;
+    double coefficient;
+    for (int k=0; k<n; k++){
+        f = move(k, arr, n);
+        if (f != -1){
+            cnt += f;
+            for (int i=k+1; i<n; i++){
+                coefficient = arr[i][k]/arr[k][k];
+                for (int j=k; j<n; j++){
+                    arr[i][j] -= coefficient*arr[k][j];
+                }
+            }
+        }
+    }
+    return cnt;
+}
+
+int main(){
+    double **arr;
+    int n;
+    printf("Ведите размер матрицы: n=");
+    if(scanf("%d", &n) != 1 || n<=0) return -1;
+    printf("\n");
+    printf("Введите матрицу:");
+    arr = (double**)malloc(n*sizeof(double*));
+    for (int i=0; i<n; i++) {
+        arr[i]=(double*)malloc(n*sizeof(double));
+        for(int j=0; j<n; j++){
+            if (scanf("%lf", &arr[i][j]) != 1) return -1; 
+        }
+    }
+    printf("\n");
+    int cnt = alg(n, arr) % 2; 
+    double det = 1;
+    for (int i=0; i<n; i++){
+        det *= arr[i][i];
+    }
+    if (cnt == 1) det *= -1;
+    printf("Искомый определитель равен %lf\n", det);
+    for (int i = 0; i < n; i++) free(arr[i]);
+    free(arr);
+    return 0;
+}
